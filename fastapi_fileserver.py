@@ -1,11 +1,12 @@
 from fastapi import FastAPI
 from starlette.requests import Request
 import os
-#from fastapi.templating import Jinja2Templates
-#from fastapi import templating
 from fastapi.templating import Jinja2Templates
 from starlette.staticfiles import StaticFiles
 from starlette.responses import RedirectResponse
+from typing import List
+from fastapi import FastAPI, File, UploadFile
+from starlette.responses import HTMLResponse
 import json
 
 #读取配置文件
@@ -97,7 +98,7 @@ def writejson():
 #运行本程序方法
 #python3 -m uvicorn main1:app  "--host" "0.0.0.0" --port 80 --reload &
 
-location='c:/Games'
+location='static'
 dir_html='''
 <html>
 <body>
@@ -140,7 +141,34 @@ def read_files(request:Request, item_id: str, q: str = None):
         q=q.replace(' ','%20')
         print('q again:::::::',q)
         return RedirectResponse(url='/static'+q)
+
+@app.post("/uploadfiles/")
+async def create_upload_files(
+    files: List[UploadFile] = File(...)
+):
+    #return {"filenames": [file.filename for file in files]}
+    #contents = await files[0].read().decode('utf8')
+    contents = files[0].file.read()
+    name0=files[0].filename
+    with open('static/upload/'+name0,'wb') as f:
+        f.write(contents)
+    #return files[0].filename, files[0].content_type
+        content = """
+<body>
+<a href="/static/upload/{}" title="转到CSS5主页">上传完成，下载链接请右键复制</a>
+</body>
+ """.format(name0)
+    return HTMLResponse(content=content)
+
+@app.get("/upload")
+async def upload():
+    content = """
+<body>
+<form action="/uploadfiles/" enctype="multipart/form-data" method="post">
+<input name="files" type="file" multiple>
+<input type="submit">
+</form>
+</body>
+ """
+    return HTMLResponse(content=content)
     
-if __name__=="__main__":
-    print('hello')
-    #os.system('python3 -m uvicorn a3:app  "--host" "0.0.0.0" --port 80 --reload')
