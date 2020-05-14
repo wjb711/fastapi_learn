@@ -90,7 +90,7 @@ def writejson():
         "name": "Cactus",
         "age":19
     }
-    x=json.dumps(data,indent=4)
+    x=json.dumps(data,indent=4,ensure_ascii=False)
     with open("demo2.json", 'w', encoding="utf-8") as f:
         f.write(x)
 
