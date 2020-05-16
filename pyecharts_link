@@ -1,0 +1,73 @@
+#网址里输入数值， 自动生成动态数据图片
+#例如输入 http://127.0.0.1/items/title_test?q={"20200516":29,"20200515":11,"20200514":30,"20200513":48,"20200512":57,"20200511":16}
+from fastapi import FastAPI
+from starlette.requests import Request
+import os
+from fastapi.templating import Jinja2Templates
+from starlette.staticfiles import StaticFiles
+from starlette.responses import RedirectResponse
+from typing import List
+from fastapi import FastAPI, File, UploadFile
+from starlette.responses import HTMLResponse
+import json
+from pyecharts import options as opts
+from pyecharts.charts import Bar
+from pyecharts.globals import ThemeType
+from pyecharts.commons.utils import JsCode
+#from pyecharts.charts import Scatter
+from fastapi import FastAPI
+from jinja2 import Markup, Environment, FileSystemLoader
+from starlette.responses import HTMLResponse
+
+app = FastAPI()
+location='static'
+app.mount('/static', StaticFiles(directory=location), name='static') 
+
+def bar_base():
+#def bar_base() -> Bar:
+    c = (
+        Bar()
+        .add_xaxis(["衬衫", "羊毛衫", "雪纺衫", "裤子", "高跟鞋", "袜子"])
+        .add_yaxis("商家A", [5, 20, 36, 10, 75, 90])
+        .add_yaxis("商家B", [15, 25, 16, 55, 48, 8])
+        .set_global_opts(title_opts=opts.TitleOpts(title="Bar-基本示例", subtitle="我是副标题"))
+    )
+    return c
+
+
+
+
+@app.get("/")
+def read_root():
+    c=bar_base()
+    #return {"Hello": "World"}
+    y=c.render_embed()
+    print(y)
+    #with open('a1.html','w') as f:
+    #    f.write(Markup(c.render_embed()))
+    #with open('a1.html','r') as f:
+    #    x=f.readlines()
+    return HTMLResponse(content=y)
+    #return y
+
+@app.get("/items/{item_id}")
+def read_item(item_id: str, q: str = None):
+    print(q,type(q))
+    #print(q, type(q))
+    dict0=json.loads(q)
+    x=list(dict0.keys())
+    y=list(dict0.values())
+    #for key in dict0
+
+    c = (
+        #Bar(init_opts=opts.InitOpts(js_host='./static',theme=ThemeType.LIGHT,width="2000px",animation_opts=opts.AnimationOpts(animation_duration=3000)))
+        Bar(init_opts=opts.InitOpts(js_host='/static/',theme=ThemeType.LIGHT,animation_opts=opts.AnimationOpts(animation_duration=3000)))
+        #Bar()
+        .add_xaxis(x)
+        .add_yaxis(item_id, y)
+        #.add_yaxis("商家B", [15, 25, 16, 55, 48, 8])
+        .set_global_opts(title_opts=opts.TitleOpts(title=item_id))
+    )
+    #return {"Hello": "World"}
+    y=c.render_embed()
+    return HTMLResponse(content=y)
