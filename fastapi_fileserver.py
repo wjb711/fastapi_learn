@@ -1,3 +1,4 @@
+#fastapi做的文件服务器
 #python3 -m uvicorn fastapi0:app --host '0.0.0.0' --reload
 from fastapi import FastAPI
 from starlette.requests import Request
