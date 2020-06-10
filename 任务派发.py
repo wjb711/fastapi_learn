@@ -1,3 +1,6 @@
+#解决问题：利用fastapi这个平台，如何实现一个简单的网页版的任务派发系统
+#实现任务由网页发送， 客户端接收任务一次，任务就清空
+#python3 -m uvicorn fastapi0:app --host '0.0.0.0' --reload
 from fastapi import FastAPI
 import time
 import os
